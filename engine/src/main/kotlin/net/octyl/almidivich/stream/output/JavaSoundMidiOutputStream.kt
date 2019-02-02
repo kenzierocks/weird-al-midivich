@@ -44,12 +44,17 @@ class JavaSoundMidiOutputStream(
 private fun MidiMessage.toJava(): javax.sound.midi.MidiMessage {
     return when (type) {
         MidiMessageType.NORMAL -> ShortMessage(
-                raw[0].toInt(),
-                raw.getOrNull(1)?.toInt() ?: 0,
-                raw.getOrNull(2)?.toInt() ?: 0)
+                raw[0].toUByteToInt(),
+                (raw.getOrNull(1)?.toUByteToInt() ?: 0),
+                (raw.getOrNull(2)?.toUByteToInt() ?: 0))
         MidiMessageType.SYSEX -> SysexMessage(
-                raw[0].toInt(), raw.copyOfRange(1, raw.size), raw.size - 1)
+                raw[0].toUByteToInt(), raw.copyOfRange(1, raw.size), raw.size - 1)
         MidiMessageType.META -> MetaMessage(
-                raw[0].toInt(), raw.copyOfRange(1, raw.size), raw.size - 1)
+                raw[0].toUByteToInt(), raw.copyOfRange(1, raw.size), raw.size - 1)
     }
 }
+
+/**
+ * Treat this byte value as an unsigned value before converting to [Int].
+ */
+private fun Byte.toUByteToInt() = toInt() and 0xFF
