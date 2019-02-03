@@ -23,21 +23,26 @@
  * THE SOFTWARE.
  */
 
-package net.octyl.almidivich.stream.input
+package net.octyl.almidivich.sequence
 
-import net.octyl.almidivich.message.MidiMessage
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.channels.ReceiveChannel
+import kotlinx.coroutines.runBlocking
+import net.octyl.almidivich.message.MidiEvent
 
+/**
+ * [MidiSequence] with all events held in a list in memory.
+ */
+class InMemoryMidiSequence(events: Collection<MidiEvent>) : MidiSequence {
+    private val sendChannel = Channel<MidiEvent>(events.size)
+    override val channel: ReceiveChannel<MidiEvent> = sendChannel
 
-fun MidiInputStream.Companion.of(midiEvents: Iterator<MidiMessage>): MidiInputStream =
-        IteratorMidiInputStream(midiEvents)
-
-fun MidiInputStream.Companion.of(midiEvents: Iterable<MidiMessage>) = of(midiEvents.iterator())
-
-private class IteratorMidiInputStream(private val midiEvents: Iterator<MidiMessage>) : MidiInputStream {
-
-    override suspend fun read() = when {
-        midiEvents.hasNext() -> midiEvents.next()
-        else -> null
+    init {
+        runBlocking {
+            for (e in events) {
+                sendChannel.send(e)
+            }
+            sendChannel.close()
+        }
     }
-
 }

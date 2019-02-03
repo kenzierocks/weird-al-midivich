@@ -23,21 +23,24 @@
  * THE SOFTWARE.
  */
 
-package net.octyl.almidivich.stream.input
+package net.octyl.almidivich.sequence
 
-import net.octyl.almidivich.message.MidiMessage
+import kotlinx.coroutines.channels.ReceiveChannel
+import net.octyl.almidivich.message.MidiEvent
 
+/**
+ * Represents a series of MIDI events.
+ *
+ * Unlike [javax.sound.midi.Sequence], there is no concept of tracks or many other features.
+ * This is a playback-optimized variant.
+ */
+interface MidiSequence {
 
-fun MidiInputStream.Companion.of(midiEvents: Iterator<MidiMessage>): MidiInputStream =
-        IteratorMidiInputStream(midiEvents)
-
-fun MidiInputStream.Companion.of(midiEvents: Iterable<MidiMessage>) = of(midiEvents.iterator())
-
-private class IteratorMidiInputStream(private val midiEvents: Iterator<MidiMessage>) : MidiInputStream {
-
-    override suspend fun read() = when {
-        midiEvents.hasNext() -> midiEvents.next()
-        else -> null
-    }
+    /**
+     * Retrieve the stream of MIDI events to play.
+     *
+     * Each MidiEvent's tick value is a relative value in milliseconds from the previous event.
+     */
+    val channel: ReceiveChannel<MidiEvent>
 
 }

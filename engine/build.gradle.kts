@@ -17,6 +17,7 @@ dependencies {
     "implementation"("org.slf4j", "slf4j-api", "1.7.25")
 
     "testImplementation"(kotlin("test-junit5"))
+    "testImplementation"("org.junit.jupiter", "junit-jupiter-engine", "5.3.2")
 }
 
 configure<InciseBlueExtension> {
@@ -30,6 +31,10 @@ configure<InciseBlueExtension> {
         lwjglVersion = "3.2.1"
         addDependency("")
         addDependency("openal")
+    }
+
+    license {
+        include("**/*.kt")
     }
 
     util.enableJUnit5()
